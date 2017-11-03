@@ -10,6 +10,7 @@ public class MonoThreadClientHandler extends Thread{
     private BufferedReader in;
     private PrintWriter out;
     private Server server;
+    private String name;
 
     public MonoThreadClientHandler(Socket socket, Server server){
         client = socket;
@@ -22,11 +23,12 @@ public class MonoThreadClientHandler extends Thread{
         try{
             in = new BufferedReader(new InputStreamReader(client.getInputStream()));
             out = new PrintWriter(new BufferedWriter(new OutputStreamWriter(client.getOutputStream())), true);
+            name = in.readLine();
             while(true){
                 input = in.readLine();
                 if(input.equals("quit")) server.isOver();
-                System.out.println("Message: " + input);
-                server.send(input);
+                //System.out.println("Message: " + input);
+                server.send(input, name);
             }
         }catch (IOException e){}
     }

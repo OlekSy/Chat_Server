@@ -9,9 +9,9 @@ import java.util.List;
  */
 public class Server extends Thread{
     private static final int PORT = 8080;
-    private List<MonoThreadClientHandler> clients;
     private ServerSocket serverSocket;
     private boolean notOver = true;
+    private ClientCheck checker;
 
     public static void main(String[] args){
         new Server().start();
@@ -19,36 +19,38 @@ public class Server extends Thread{
 
     @Override
     public void run(){
+        checker = new ClientCheck();
+        checker.start();
         MonoThreadClientHandler temp;
-        clients = new ArrayList<>();
         try {
             serverSocket = new ServerSocket(PORT);
             while(notOver) {
                 Socket socket = serverSocket.accept();
                 temp = new MonoThreadClientHandler(socket, this);
-                clients.add(temp);
+                checker.addToClientsList(temp);
                 temp.start();
             }
         } catch (IOException e){}
         finally {
-            System.out.println("We are out from while.");
             try {
                 serverSocket.close();
-                for (MonoThreadClientHandler newTemp : clients) {
+                for (MonoThreadClientHandler newTemp : checker.getClients()) {
                     newTemp.getClient().close();
                 }
             } catch(IOException e){}
         }
     }
 
-    public void send(String message){
-        for(MonoThreadClientHandler temp : clients){
-            temp.getOut().println(message);
+    public void send(String message, String name){
+        if(!checker.getClients().isEmpty()) {
+            for (MonoThreadClientHandler temp : checker.getClients()) {
+                temp.getOut().println("<" + name + ">: " + message);
+            }
         }
     }
 
     public void isOver(){
-        notOver = true;
+        notOver = false;
         try {
             serverSocket.close();
         } catch (IOException e) {
