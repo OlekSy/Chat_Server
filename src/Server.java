@@ -25,9 +25,12 @@ public class Server extends Thread{
         try {
             serverSocket = new ServerSocket(PORT);
             while(notOver) {
-                Socket socket = serverSocket.accept();
-                temp = new MonoThreadClientHandler(socket, this);
+                Socket socketText = serverSocket.accept();
+                Socket socketClients = serverSocket.accept();
+                temp = new MonoThreadClientHandler(socketText, socketClients, this);
+                //System.out.println(temp.getClientText() + "\n" + temp.getClientClients());
                 checker.addToClientsList(temp);
+                //System.out.println(checker.getClients().size());
                 temp.start();
             }
         } catch (IOException e){}
@@ -35,7 +38,8 @@ public class Server extends Thread{
             try {
                 serverSocket.close();
                 for (MonoThreadClientHandler newTemp : checker.getClients()) {
-                    newTemp.getClient().close();
+                    newTemp.getClientText().close();
+                    newTemp.getClientClients().close();
                 }
             } catch(IOException e){}
         }
@@ -44,7 +48,8 @@ public class Server extends Thread{
     public void send(String message, String name){
         if(!checker.getClients().isEmpty()) {
             for (MonoThreadClientHandler temp : checker.getClients()) {
-                temp.getOut().println("<" + name + ">: " + message);
+                temp.getOutText().println("<" +
+                        name + ">: " + message);
             }
         }
     }

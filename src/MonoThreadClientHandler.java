@@ -5,15 +5,18 @@ import java.net.Socket;
  * Created by damaz on 02.11.2017.
  */
 public class MonoThreadClientHandler extends Thread{
-    private Socket client;
+    private Socket clientText;
+    private Socket clientClients;
     private String input;
-    private BufferedReader in;
-    private PrintWriter out;
+    private BufferedReader inText;
+    private PrintWriter outText;
+    private PrintWriter outClients;
     private Server server;
     private String name;
 
-    public MonoThreadClientHandler(Socket socket, Server server){
-        client = socket;
+    public MonoThreadClientHandler(Socket socketText, Socket socketClients, Server server){
+        clientText = socketText;
+        clientClients = socketClients;
         this.server = server;
         this.setDaemon(true);
     }
@@ -21,11 +24,19 @@ public class MonoThreadClientHandler extends Thread{
     @Override
     public void run(){
         try{
-            in = new BufferedReader(new InputStreamReader(client.getInputStream()));
-            out = new PrintWriter(new BufferedWriter(new OutputStreamWriter(client.getOutputStream())), true);
-            name = in.readLine();
+            //System.out.println(clientClients.isClosed());
+            inText = new BufferedReader(new InputStreamReader(clientText.getInputStream()));
+            outText = new PrintWriter(new BufferedWriter(new OutputStreamWriter(clientText.getOutputStream())), true);
+
+            outClients = new PrintWriter(new BufferedWriter(new OutputStreamWriter(clientClients.getOutputStream())), true);
+
+            //System.out.println(outText + "\n" + outClients);
+
+            //System.out.println(outClients);
+
+            name = inText.readLine();
             while(true){
-                input = in.readLine();
+                input = inText.readLine();
                 if(input.equals("quit")) server.isOver();
                 //System.out.println("Message: " + input);
                 server.send(input, name);
@@ -33,7 +44,13 @@ public class MonoThreadClientHandler extends Thread{
         }catch (IOException e){}
     }
 
-    public PrintWriter getOut(){return out;}
+    public PrintWriter getOutText(){return outText;}
 
-    public Socket getClient(){return client;}
+    public PrintWriter getOutClients(){return outClients;}
+
+    public Socket getClientText(){return clientText;}
+
+    public Socket getClientClients(){return clientClients;}
+
+    public String getUserName(){return name;}
 }

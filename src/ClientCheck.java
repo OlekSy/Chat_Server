@@ -1,3 +1,4 @@
+import java.io.*;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -14,12 +15,22 @@ public class ClientCheck extends Thread{
 
     @Override
     public void run(){
+        String clientsResult;
         while (true) {
-            if(!clients.isEmpty()) {
+            clientsResult = "";
+            while(!clients.isEmpty()) {
                 for (MonoThreadClientHandler temp : clients) {
-                    if (!temp.isAlive()) {
+                    if (temp.getClientText().isClosed()) {
                         clients.remove(temp);
+                    } else {
+                        clientsResult += temp.getUserName();
+                        clientsResult += "\n";
                     }
+                }
+                System.out.println(clients.size());
+                for(MonoThreadClientHandler temp : clients){
+                    System.out.println(temp);
+                    temp.getOutClients().println(clientsResult);
                 }
             }
         }
@@ -27,7 +38,5 @@ public class ClientCheck extends Thread{
 
     public List<MonoThreadClientHandler> getClients(){return clients;}
 
-    public void addToClientsList(MonoThreadClientHandler temp){clients.add(temp);}
-
-    public void removeFromClientsList(MonoThreadClientHandler temp){clients.remove(temp);}
+    public synchronized void addToClientsList(MonoThreadClientHandler temp){clients.add(temp);}
 }
