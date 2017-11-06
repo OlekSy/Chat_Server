@@ -12,6 +12,8 @@ public class Server extends Thread{
     private ServerSocket serverSocket;
     private boolean notOver = true;
     private ClientCheck checker;
+    private StringBuilder clientList = new StringBuilder();
+    private String tempClientList;
 
     public static void main(String[] args){
         new Server().start();
@@ -20,26 +22,21 @@ public class Server extends Thread{
     @Override
     public void run(){
         checker = new ClientCheck();
-        checker.start();
         MonoThreadClientHandler temp;
         try {
             serverSocket = new ServerSocket(PORT);
             while(notOver) {
-                Socket socketText = serverSocket.accept();
-                Socket socketClients = serverSocket.accept();
-                temp = new MonoThreadClientHandler(socketText, socketClients, this);
-                //System.out.println(temp.getClientText() + "\n" + temp.getClientClients());
-                checker.addToClientsList(temp);
-                //System.out.println(checker.getClients().size());
+                Socket socket = serverSocket.accept();
+                temp = new MonoThreadClientHandler(socket, this, checker);
                 temp.start();
             }
-        } catch (IOException e){}
-        finally {
+        } catch (IOException e){
+            e.printStackTrace();
+        } finally {
             try {
                 serverSocket.close();
                 for (MonoThreadClientHandler newTemp : checker.getClients()) {
-                    newTemp.getClientText().close();
-                    newTemp.getClientClients().close();
+                    newTemp.getClient().close();
                 }
             } catch(IOException e){}
         }
@@ -48,8 +45,21 @@ public class Server extends Thread{
     public void send(String message, String name){
         if(!checker.getClients().isEmpty()) {
             for (MonoThreadClientHandler temp : checker.getClients()) {
-                temp.getOutText().println("<" +
-                        name + ">: " + message);
+                temp.getOut().println("<" + name + ">: " + message);
+            }
+        }
+    }
+
+    public void sendList(){
+        if(!checker.getClients().isEmpty()){
+            clientList = new StringBuilder();
+            for(MonoThreadClientHandler temp : checker.getClients()){
+                clientList.append(temp.getUserName()).append("@~#");
+            }
+            tempClientList = clientList.toString();
+            for(MonoThreadClientHandler temp : checker.getClients()){
+                temp.getOut().println("\\list");
+                temp.getOut().println(tempClientList);
             }
         }
     }
