@@ -50,8 +50,9 @@ public class Server extends Thread{
         }
     }
 
-    public void sendList(List<MonoThreadClientHandler> clients){
+    public void sendList(){
         if(!checker.getClients().isEmpty()){
+            clientList = new StringBuilder();
             for(MonoThreadClientHandler temp : checker.getClients()){
                 clientList.append(temp.getUserName()).append("@~#");
             }
@@ -61,7 +62,6 @@ public class Server extends Thread{
                 temp.getOut().println(tempClientList);
             }
         }
-        clientList = new StringBuilder();
     }
 
     public void isOver(){

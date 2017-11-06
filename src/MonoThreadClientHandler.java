@@ -28,7 +28,7 @@ public class MonoThreadClientHandler extends Thread{
             out = new PrintWriter(new BufferedWriter(new OutputStreamWriter(client.getOutputStream())), true);
             name = in.readLine();
             checker.addToClientsList(this);
-            server.sendList(checker.getClients());
+            server.sendList();
             while(true){
                 input = in.readLine();
                 switchString = input.substring(1, input.length());
@@ -40,7 +40,7 @@ public class MonoThreadClientHandler extends Thread{
                         }
                         case "out":
                             checker.removeFromClientsList(this);
-                            server.sendList(checker.getClients());
+                            server.sendList();
                             break;
                     }
                 }
