@@ -11,7 +11,7 @@ import java.util.List;
  * Created by damaz on 02.11.2017.
  */
 public class Server extends Thread{
-    private static final int PORT = 8080;
+    private static final int PORT = 27777;
     private ServerSocket serverSocket;
     private boolean notOver = true;
     private ClientCheck checker;
