@@ -31,6 +31,7 @@ public class MonoThreadClientHandler extends Thread{
             server.sendList();
             while(true){
                 input = in.readLine();
+                if (input == null) break; //Client has left
                 switchString = input.substring(1, input.length());
                 if(input.charAt(0) == '\\'){
                     switch(switchString){
@@ -47,7 +48,9 @@ public class MonoThreadClientHandler extends Thread{
                 //System.out.println("Message: " + input);
                 server.send(input, name);
             }
-        }catch (IOException e){}
+        }catch (IOException e){
+            e.printStackTrace();
+        }
     }
 
     public PrintWriter getOut(){return out;}

@@ -17,6 +17,7 @@ public class Server extends Thread{
 
     public static void main(String[] args){
         new Server().start();
+        System.out.println("Server is up and running!");
     }
 
     @Override
@@ -38,7 +39,9 @@ public class Server extends Thread{
                 for (MonoThreadClientHandler newTemp : checker.getClients()) {
                     newTemp.getClient().close();
                 }
-            } catch(IOException e){}
+            } catch(IOException e){
+                e.printStackTrace();
+            }
         }
     }
 
