@@ -1,6 +1,9 @@
+import javafx.application.Platform;
+
 import java.io.IOException;
 import java.net.ServerSocket;
 import java.net.Socket;
+import java.net.SocketException;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -14,6 +17,7 @@ public class Server extends Thread{
     private ClientCheck checker;
     private StringBuilder clientList = new StringBuilder();
     private String tempClientList;
+    private final int minVersionNumber = 0;
 
     public static void main(String[] args){
         new Server().start();
@@ -26,11 +30,13 @@ public class Server extends Thread{
         MonoThreadClientHandler temp;
         try {
             serverSocket = new ServerSocket(PORT);
-            while(notOver) {
+            while (notOver) {
                 Socket socket = serverSocket.accept();
                 temp = new MonoThreadClientHandler(socket, this, checker);
                 temp.start();
             }
+        } catch (SocketException ignored) {
+
         } catch (IOException e){
             e.printStackTrace();
         } finally {
@@ -71,6 +77,19 @@ public class Server extends Thread{
         notOver = false;
         try {
             serverSocket.close();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
+    public int getMinVersionNumber() {
+        return minVersionNumber;
+    }
+
+    public void removeClient(MonoThreadClientHandler client) {
+        checker.removeFromClientsList(client);
+        try {
+            client.getClient().close();
         } catch (IOException e) {
             e.printStackTrace();
         }

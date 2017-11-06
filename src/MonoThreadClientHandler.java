@@ -26,27 +26,38 @@ public class MonoThreadClientHandler extends Thread{
         try{
             in = new BufferedReader(new InputStreamReader(client.getInputStream()));
             out = new PrintWriter(new BufferedWriter(new OutputStreamWriter(client.getOutputStream())), true);
-            name = in.readLine();
-            checker.addToClientsList(this);
-            server.sendList();
-            while(true){
-                input = in.readLine();
-                if (input == null) break; //Client has left
-                switchString = input.substring(1, input.length());
-                if(input.charAt(0) == '\\'){
-                    switch(switchString){
-                        case "quit":{
-                            server.isOver();
-                            break;
+            int verNum = -1;
+            try {
+                verNum = Integer.parseInt(in.readLine());
+            } catch (NumberFormatException nfe) {
+                System.out.println("Bullshit entered (expected version number): " + nfe.getMessage());
+            }
+            if (verNum < server.getMinVersionNumber()) {
+                out.println("\\versionTooLow");
+                server.removeClient(this);
+            } else {
+                name = in.readLine();
+                checker.addToClientsList(this);
+                server.sendList();
+                while (true) {
+                    input = in.readLine();
+                    if (input == null) break; //Client has left
+                    switchString = input.substring(1, input.length());
+                    if (input.charAt(0) == '\\') {
+                        switch (switchString) {
+                            case "quit": {
+                                server.isOver();
+                                break;
+                            }
+                            case "out":
+                                checker.removeFromClientsList(this);
+                                server.sendList();
+                                break;
                         }
-                        case "out":
-                            checker.removeFromClientsList(this);
-                            server.sendList();
-                            break;
                     }
+                    //System.out.println("Message: " + input);
+                    server.send(input, name);
                 }
-                //System.out.println("Message: " + input);
-                server.send(input, name);
             }
         }catch (IOException e){
             e.printStackTrace();
