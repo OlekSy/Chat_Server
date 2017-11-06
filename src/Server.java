@@ -12,6 +12,8 @@ public class Server extends Thread{
     private ServerSocket serverSocket;
     private boolean notOver = true;
     private ClientCheck checker;
+    private StringBuilder clientList = new StringBuilder();
+    private String tempClientList;
 
     public static void main(String[] args){
         new Server().start();
@@ -20,18 +22,17 @@ public class Server extends Thread{
     @Override
     public void run(){
         checker = new ClientCheck();
-        checker.start();
         MonoThreadClientHandler temp;
         try {
             serverSocket = new ServerSocket(PORT);
             while(notOver) {
                 Socket socket = serverSocket.accept();
-                temp = new MonoThreadClientHandler(socket, this);
-                checker.addToClientsList(temp);
+                temp = new MonoThreadClientHandler(socket, this, checker);
                 temp.start();
             }
-        } catch (IOException e){}
-        finally {
+        } catch (IOException e){
+            e.printStackTrace();
+        } finally {
             try {
                 serverSocket.close();
                 for (MonoThreadClientHandler newTemp : checker.getClients()) {
@@ -47,6 +48,20 @@ public class Server extends Thread{
                 temp.getOut().println("<" + name + ">: " + message);
             }
         }
+    }
+
+    public void sendList(List<MonoThreadClientHandler> clients){
+        if(!checker.getClients().isEmpty()){
+            for(MonoThreadClientHandler temp : checker.getClients()){
+                clientList.append(temp.getUserName()).append("@~#");
+            }
+            tempClientList = clientList.toString();
+            for(MonoThreadClientHandler temp : checker.getClients()){
+                temp.getOut().println("\\list");
+                temp.getOut().println(tempClientList);
+            }
+        }
+        clientList = new StringBuilder();
     }
 
     public void isOver(){

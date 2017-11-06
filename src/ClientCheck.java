@@ -4,25 +4,11 @@ import java.util.List;
 /**
  * Created by damaz on 04.11.2017.
  */
-public class ClientCheck extends Thread{
+public class ClientCheck{
     private List<MonoThreadClientHandler> clients;
 
     ClientCheck(){
         clients = new ArrayList<>();
-        this.setDaemon(true);
-    }
-
-    @Override
-    public void run(){
-        while (true) {
-            if(!clients.isEmpty()) {
-                for (MonoThreadClientHandler temp : clients) {
-                    if (!temp.isAlive()) {
-                        clients.remove(temp);
-                    }
-                }
-            }
-        }
     }
 
     public List<MonoThreadClientHandler> getClients(){return clients;}
