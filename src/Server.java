@@ -8,12 +8,12 @@ import java.net.SocketException;
  */
 public class Server extends Thread{
     private static final int PORT = 27777;
+    private static final int MIN_VERSION_NUMBER = 0;
     private ServerSocket serverSocket;
     private boolean notOver = true;
     private ClientCheck checker;
     private StringBuilder clientList = new StringBuilder();
     private String tempClientList;
-    private final int minVersionNumber = 0;
 
     public static void main(String[] args){
         new Server().start();
@@ -79,7 +79,7 @@ public class Server extends Thread{
     }
 
     public int getMinVersionNumber() {
-        return minVersionNumber;
+        return MIN_VERSION_NUMBER;
     }
 
     public void removeClient(MonoThreadClientHandler client) {
