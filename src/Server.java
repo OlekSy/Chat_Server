@@ -1,11 +1,7 @@
-import javafx.application.Platform;
-
 import java.io.IOException;
 import java.net.ServerSocket;
 import java.net.Socket;
 import java.net.SocketException;
-import java.util.ArrayList;
-import java.util.List;
 
 /**
  * Created by damaz on 02.11.2017.
